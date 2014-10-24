@@ -27,7 +27,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "tables.h"
+//#include "tables.h"
 #define u32 unsigned int
 #define BYTE unsigned char
 #define RS_MOD 0x14D
