@@ -56,7 +56,10 @@ function m.lua2c(fname_lua, password)
         const char lua_enc_dump[] = { @lua_enc_dump@ };
         lua_pushlstring(L, lua_enc_dump, sizeof(lua_enc_dump));
         lua_pushstring(L, password);
-        twofish_decrypt(L);
+        if (!twofish_decrypt(L)) {
+            printf("Failed to decrypt Lua source\n");
+            return 0;
+        }
         int orig_size;
         const char* orig = lua_tolstring(L, -1, &orig_size);
         int status = luaL_loadbuffer(L, orig, orig_size,
