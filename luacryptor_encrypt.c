@@ -58,7 +58,6 @@ static int twofish_encrypt(lua_State *L) {
     // nonce is stored in the beginning
     int out_bytes = cleartext_s + BLOCK_BYTES;
     char* out = malloc(out_bytes);
-    lua_pushlstring(L, out, out_bytes);
     // twofish - make nonce (~IV) for CTR mode
     char* nonce = out;
     get_random_bytes(nonce, BLOCK_BYTES);
@@ -88,6 +87,7 @@ static int twofish_encrypt(lua_State *L) {
         memcpy(b_out, block, last_block_size);
         xor_block(b_out, b_in, last_block_size);
     }
+    lua_pushlstring(L, out, out_bytes);
     return 1;
 }
 
