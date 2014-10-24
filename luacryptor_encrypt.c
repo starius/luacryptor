@@ -76,7 +76,7 @@ static int twofish_twoways(lua_State *L, int encr) {
         normal_blocks = cleartext_s / BLOCK_BYTES;
     } else {
         nonce = cleartext;
-        input = cleartext + BLOCK_BYTES;;
+        input = cleartext + BLOCK_BYTES;
         encrypted = out;
         normal_blocks = (cleartext_s / BLOCK_BYTES) - 1;
     }
