@@ -50,7 +50,7 @@ static int twofish_encrypt(lua_State *L) {
     u32 *S;
     u32 K[40];
     int k;
-    keySched(key, 128, &S, K, &k);
+    keySched(sha256sum, 128, &S, K, &k);
     u32 QF[4][256];
     fullKey(S, k, QF);
     free(S);
