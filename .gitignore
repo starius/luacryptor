@@ -1,0 +1,5 @@
+*.pyc
+*.swp
+
+twofish_lib.c
+tables.h
