@@ -16,7 +16,7 @@ common_lib.c: twofish_lib.c sha256_lib.c
 		-e 's/^void/static void/' \
 		-e 's/^inline/static/' > $@
 
-encrypt_lib.c: common_lib.c luacryptor_encrypt.c
+encrypt_lib.c: common_lib.c lua_bindings.c
 	cat $^ > $@
 
 encrypt_lib.so: encrypt_lib.c
