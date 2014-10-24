@@ -69,7 +69,8 @@ function m.lua2c(fname_lua, password)
             lua_pop(L, 2); // orig, error message
             return 0;
         }
-        return 1; // loaded chunk
+        lua_pcall(L, 0, 1, 0);
+        return 1; // chunk execution result
     }]]
     ttt = ttt:gsub('@[%w_]+@',
         {['@basename@'] = basename,
