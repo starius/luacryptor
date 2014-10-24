@@ -11,5 +11,7 @@ sha256_lib.c: sha256/sha256.h sha256/sha256.c
 	cat $^ > $@
 
 common_lib.c: twofish_lib.c sha256_lib.c
-	cat $^ > $@
+	cat $^ | sed -e 's/^u/static u/' \
+		-e 's/^void/static void/' \
+		-e 's/^inline/static/' > $@
 
