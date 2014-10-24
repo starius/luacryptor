@@ -38,7 +38,7 @@ static int twofish_twoways(lua_State *L, int encr) {
     size_t cleartext_s;
     const char* cleartext = lua_tolstring(L, 1, &cleartext_s);
     size_t key_s;
-    const char* key = lua_tolstring(L, 1, &key_s);
+    const char* key = lua_tolstring(L, 2, &key_s);
     //
     unsigned char sha256sum[32];
     // sha256
