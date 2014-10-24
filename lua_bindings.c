@@ -23,8 +23,8 @@ static void xor_block(BYTE* dst, const BYTE* src, int size) {
 // If encr, encrypts, otherwise decrypts
 // Lua arguments:
 // string text (may be cleartext or encrypted text)
-// string key
-// sha256(key) is used as key for twofish
+// string password
+// sha256(password) is used as key for twofish
 // returns cleartext or encrypted text
 static int twofish_twoways(lua_State *L, int encr) {
     if (lua_gettop(L) != 2) {
@@ -38,14 +38,14 @@ static int twofish_twoways(lua_State *L, int encr) {
     }
     size_t text_s;
     const char* text = lua_tolstring(L, 1, &text_s);
-    size_t key_s;
-    const char* key = lua_tolstring(L, 2, &key_s);
+    size_t password_s;
+    const char* password = lua_tolstring(L, 2, &password_s);
     //
     unsigned char sha256sum[32];
     // sha256
     sha256_context ctx;
     sha256_starts(&ctx);
-    sha256_update(&ctx, (uint8*)key, key_s);
+    sha256_update(&ctx, (uint8*)password, password_s);
     sha256_finish(&ctx, sha256sum);
     // twofish - prepare key
     u32 *S;
