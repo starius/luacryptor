@@ -25,7 +25,7 @@ static void xor_block(BYTE* dst, const BYTE* src, int size) {
 // string key
 // sha256(key) is used as key for twofish
 // returns cryptotext
-static int twofish_encrypt(lua_State *L) {
+static int twofish_twoways(lua_State *L, int encr) {
     if (lua_gettop(L) != 2) {
         return 0;
     }
@@ -56,13 +56,27 @@ static int twofish_encrypt(lua_State *L) {
     free(S);
     // allocate output string
     // nonce is stored in the beginning
-    int out_bytes = cleartext_s + BLOCK_BYTES;
+    int out_bytes;
+    if (encr) {
+        out_bytes = cleartext_s + BLOCK_BYTES;
+    } else {
+        out_bytes = cleartext_s - BLOCK_BYTES;
+    }
     char* out = malloc(out_bytes);
     // twofish - make nonce (~IV) for CTR mode
-    char* nonce = out;
-    get_random_bytes(nonce, BLOCK_BYTES);
-    char* encrypted = out + BLOCK_BYTES;
-    int normal_blocks = cleartext_s / BLOCK_BYTES;
+    char* nonce;
+    char* encrypted;
+    int normal_blocks;
+    if (encr) {
+        nonce = out;
+        get_random_bytes(nonce, BLOCK_BYTES);
+        encrypted = out + BLOCK_BYTES;
+        normal_blocks = cleartext_s / BLOCK_BYTES;
+    } else {
+        nonce = cleartext;
+        encrypted = out;
+        normal_blocks = (cleartext_s / BLOCK_BYTES) - 1;
+    }
     int i;
     for (i = 0; i < normal_blocks; i++) {
         char* b_in = cleartext + i * BLOCK_BYTES;
@@ -92,8 +106,20 @@ static int twofish_encrypt(lua_State *L) {
     return 1;
 }
 
+static int twofish_encrypt(lua_State *L) {
+    return twofish_twoways(L, 1);
+}
+
+static int twofish_decrypt(lua_State *L) {
+    return twofish_twoways(L, 0);
+}
+
 LUALIB_API int luaopen_encrypt_lib(lua_State *L) {
+    lua_newtable(L);
     lua_pushcfunction(L, twofish_encrypt);
+    lua_setfield(L, -2, "encrypt");
+    lua_pushcfunction(L, twofish_decrypt);
+    lua_setfield(L, -2, "decrypt");
     return 1;
 }
 
