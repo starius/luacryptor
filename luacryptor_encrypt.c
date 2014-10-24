@@ -12,7 +12,8 @@ static void get_random_bytes(char* buffer, int size) {
 }
 
 static void xor_block(BYTE* dst, const BYTE* src, int size) {
-    for (int i = 0; i < size; i++) {
+    int i;
+    for (i = 0; i < size; i++) {
         dst[i] ^= src[i];
     }
 }
@@ -63,14 +64,15 @@ static int twofish_encrypt(lua_State *L) {
     get_random_bytes(nonce, BLOCK_BYTES);
     char* encrypted = out + BLOCK_BYTES;
     int normal_blocks = cleartext_s / BLOCK_BYTES;
-    for (int i = 0; i < normal_blocks; i++) {
+    int i;
+    for (i = 0; i < normal_blocks; i++) {
         char* b_in = cleartext + i * BLOCK_BYTES;
         char* b_out = encrypted + i * BLOCK_BYTES;
-        memcpy(b_out, nonce);
+        memcpy(b_out, nonce, BLOCK_BYTES);
         int* ctr = (int*)b_out;
         // FIXME int is assumed 32bit value
         // FIXME order of bytes in int
-        ctr ^= i;
+        *ctr ^= i;
         encrypt(K, QF, b_out);
         xor_block(b_out, b_in, BLOCK_BYTES);
     }
@@ -79,9 +81,9 @@ static int twofish_encrypt(lua_State *L) {
         char* b_in = cleartext + normal_blocks * BLOCK_BYTES;
         char* b_out = encrypted + normal_blocks * BLOCK_BYTES;
         char block[BLOCK_BYTES];
-        memcpy(block, nonce);
+        memcpy(block, nonce, BLOCK_BYTES);
         int* ctr = (int*)block;
-        ctr ^= i;
+        *ctr ^= i;
         encrypt(K, QF, block);
         memcpy(b_out, block, last_block_size);
         xor_block(b_out, b_in, last_block_size);
@@ -89,7 +91,7 @@ static int twofish_encrypt(lua_State *L) {
     return 1;
 }
 
-LUALIB_API int luaopen_luacryptor_encrypt(lua_State *L) {
+LUALIB_API int luaopen_encrypt_lib(lua_State *L) {
     lua_pushcfunction(L, twofish_encrypt);
     return 1;
 }
