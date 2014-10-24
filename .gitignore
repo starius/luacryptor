@@ -1,8 +1,10 @@
-*.pyc
 *.swp
+
+*.pyc
+*.so
 
 tables.h
 twofish_lib.c
 sha256_lib.c
 common_lib.c
-
+encrypt_lib.c
