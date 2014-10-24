@@ -11,15 +11,15 @@ sha256_lib.c: sha256/sha256.h sha256/sha256.c
 	cat sha256/sha256.h > $@
 	cat sha256/sha256.c | sed -e '/ifdef TEST/,$$d' >> $@
 
-common_lib.c: twofish_lib.c sha256_lib.c
+twofish_and_sha256.c: twofish_lib.c sha256_lib.c
 	cat $^ | sed -e 's/^u/static u/' \
 		-e 's/^void/static void/' \
 		-e 's/^inline/static/' > $@
 
-encrypt_lib.c: common_lib.c lua_bindings.c
+twofish.c: twofish_and_sha256.c lua_bindings.c
 	cat $^ > $@
 
-encrypt_lib.so: encrypt_lib.c
+twofish.so: twofish.c
 	gcc -shared -fpic -I /usr/include/lua5.1/ \
 		$^ -o $@ -llua5.1
 

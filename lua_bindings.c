@@ -117,7 +117,7 @@ static int twofish_decrypt(lua_State *L) {
     return twofish_twoways(L, 0);
 }
 
-LUALIB_API int luaopen_encrypt_lib(lua_State *L) {
+LUALIB_API int luaopen_twofish(lua_State *L) {
     lua_newtable(L);
     lua_pushcfunction(L, twofish_encrypt);
     lua_setfield(L, -2, "encrypt");
