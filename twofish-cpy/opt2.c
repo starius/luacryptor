@@ -236,7 +236,7 @@ void printRound(int round, u32 R0, u32 R1, u32 R2, u32 R3, u32 K1, u32 K2)
     R2 = ROR(R2 ^ (T1 + T0 + K[2*round+8]), 1); \
     R3 = ROL(R3, 1) ^ (2*T1 + T0 + K[2*round+9]); 
 
-inline void encrypt(u33 K[40], u32 S[4][256], BYTE PT[16])
+inline void encrypt(u32 K[40], u32 S[4][256], BYTE PT[16])
 {
     u32 R0, R1, R2, R3;
     u32 T0, T1;
