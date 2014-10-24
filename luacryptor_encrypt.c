@@ -65,21 +65,24 @@ static int twofish_twoways(lua_State *L, int encr) {
     char* out = malloc(out_bytes);
     // twofish - make nonce (~IV) for CTR mode
     char* nonce;
+    char* input;
     char* encrypted;
     int normal_blocks;
     if (encr) {
         nonce = out;
         get_random_bytes(nonce, BLOCK_BYTES);
+        input = cleartext;
         encrypted = out + BLOCK_BYTES;
         normal_blocks = cleartext_s / BLOCK_BYTES;
     } else {
         nonce = cleartext;
+        input = cleartext + BLOCK_BYTES;;
         encrypted = out;
         normal_blocks = (cleartext_s / BLOCK_BYTES) - 1;
     }
     int i;
     for (i = 0; i < normal_blocks; i++) {
-        char* b_in = cleartext + i * BLOCK_BYTES;
+        char* b_in = input + i * BLOCK_BYTES;
         char* b_out = encrypted + i * BLOCK_BYTES;
         memcpy(b_out, nonce, BLOCK_BYTES);
         int* ctr = (int*)b_out;
@@ -91,12 +94,12 @@ static int twofish_twoways(lua_State *L, int encr) {
     }
     int last_block_size = cleartext_s % BLOCK_BYTES;
     if (last_block_size) {
-        char* b_in = cleartext + normal_blocks * BLOCK_BYTES;
+        char* b_in = input + normal_blocks * BLOCK_BYTES;
         char* b_out = encrypted + normal_blocks * BLOCK_BYTES;
         char block[BLOCK_BYTES];
         memcpy(block, nonce, BLOCK_BYTES);
         int* ctr = (int*)block;
-        *ctr ^= i;
+        *ctr ^= normal_blocks;
         encrypt(K, QF, block);
         memcpy(b_out, block, last_block_size);
         xor_block(b_out, b_in, last_block_size);
