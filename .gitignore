@@ -1,5 +1,8 @@
 *.pyc
 *.swp
 
-twofish_lib.c
 tables.h
+twofish_lib.c
+sha256_lib.c
+common_lib.c
+
