@@ -88,6 +88,7 @@ static int twofish_encrypt(lua_State *L) {
         xor_block(b_out, b_in, last_block_size);
     }
     lua_pushlstring(L, out, out_bytes);
+    free(out);
     return 1;
 }
 
