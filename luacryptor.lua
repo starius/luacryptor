@@ -69,14 +69,19 @@ LUALIB_API int luaopen_@modname@(lua_State *L) {
     return 1; // chunk execution result
 }]] end
 
-function m.lua2c(fname_lua, password)
-    local lua_enc = m.encryptFileContent(fname_lua, password)
-    local lua_enc_dump = m.dump(lua_enc)
+function m.module_names(fname_lua)
     local fname_c = fname_lua:gsub('.lua$', '.c')
     local basename = fname_lua:gsub('.lua$', '')
     local modname = basename
     modname = modname:gsub('.+/', '')
     modname = modname:gsub('.+\\', '')
+    return fname_c, basename, modname
+end
+
+function m.lua2c(fname_lua, password)
+    local lua_enc = m.encryptFileContent(fname_lua, password)
+    local lua_enc_dump = m.dump(lua_enc)
+    local fname_c, basename, modname = m.module_names(fname_lua)
     local f_c = io.open(fname_c, 'w')
     local lc = require 'luacryptorext'
     f_c:write(lc.luacryptorbase)
