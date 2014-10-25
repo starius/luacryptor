@@ -1,6 +1,8 @@
-local f = function()
+local m = {}
+
+m.f = function()
     return 'sec' .. 'ret'
 end
 
-return f()
+return m
 
