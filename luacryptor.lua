@@ -255,7 +255,7 @@ if not pcall(debug.getlocal, 4, 1) then
     local cmd, a1, a2, a3, a4 = unPack(arg)
     local f = m[cmd]
     if f then
-        f(a1, a2, a3, a4)
+        print(f(a1, a2, a3, a4))
     else
         print([[Usage:
         lua luacryptor.lua dump any_file
