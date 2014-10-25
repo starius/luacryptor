@@ -11,20 +11,20 @@ function m.cleanSource(src)
     return src
 end
 
-do
-    local numtab={}
-    for i=0, 255 do
-        numtab[string.char(i)] = ("%3d,"):format(i)
-    end
-    function m.dump(str)
-        str = str
-            :gsub(".", numtab)
-            :gsub(("."):rep(60), "%0\n")
-        if str:sub(-1, -1) == ',' then
-            str = str:sub(1, -2)
+function m.dump(str)
+    if not m.numtab then
+        m.numtab = {}
+        for i = 0, 255 do
+            m.numtab[string.char(i)] = ("%3d,"):format(i)
         end
-        return str
     end
+    str = str
+        :gsub(".", m.numtab)
+        :gsub(("."):rep(60), "%0\n")
+    if str:sub(-1, -1) == ',' then
+        str = str:sub(1, -2)
+    end
+    return str
 end
 
 function m.fileContent(fname)
