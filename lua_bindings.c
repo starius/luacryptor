@@ -86,8 +86,7 @@ static int twofish_twoways(lua_State *L, int encr) {
         char* b_in = input + i * BLOCK_BYTES;
         char* b_out = output + i * BLOCK_BYTES;
         memcpy(b_out, nonce, BLOCK_BYTES);
-        int* ctr = (int*)b_out;
-        // FIXME int is assumed 32bit value
+        int* ctr = (int*)(b_out + BLOCK_BYTES - sizeof(int));
         // FIXME order of bytes in int
         *ctr ^= i;
         encrypt(K, QF, b_out);
