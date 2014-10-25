@@ -100,7 +100,8 @@ function m.encrypt_function_src(fname_lua, password)
     end
 end
 
-if arg then
+-- http://stackoverflow.com/a/4521960
+if not pcall(debug.getlocal, 4, 1) then
     if arg[1] == 'embed' then
         local fname = arg[2]
         local password = arg[3]
