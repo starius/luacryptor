@@ -79,5 +79,15 @@ function m.lua2c(fname_lua, password)
     f_c:close()
 end
 
+if arg then
+    if #arg == 2 then
+        local fname = arg[1]
+        local password = arg[2]
+        m.lua2c(fname, password)
+    else
+        print('Usage: lua luacryptor.lua target.lua password')
+    end
+end
+
 return m
 
