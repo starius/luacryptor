@@ -40,7 +40,7 @@ function m.encryptFileContent(fname, password)
     return lc.encrypt(content, password)
 end
 
-m.embed_luaopen = [[
+function m.embed_luaopen() return [[
 LUALIB_API int luaopen_@modname@(lua_State *L) {
     lua_getfield(L, LUA_REGISTRYINDEX, "__luacryptor_pwd");
     const char* password = lua_tostring(L, -1);
@@ -71,7 +71,7 @@ LUALIB_API int luaopen_@modname@(lua_State *L) {
     }
     lua_pcall(L, 0, 1, 0);
     return 1; // chunk execution result
-}]]
+}]] end
 
 function m.lua2c(fname_lua, password)
     local lua_enc = m.encryptFileContent(fname_lua, password)
@@ -84,7 +84,7 @@ function m.lua2c(fname_lua, password)
     local f_c = io.open(fname_c, 'w')
     local lc = require 'luacryptorext'
     f_c:write(lc.luacryptorbase)
-    local ttt = m.embed_luaopen:gsub('@[%w_]+@', {
+    local ttt = m.embed_luaopen():gsub('@[%w_]+@', {
         ['@modname@'] = modname,
         ['@basename@'] = basename,
         ['@lua_enc_dump@'] = lua_enc_dump,
