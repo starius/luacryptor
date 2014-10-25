@@ -32,9 +32,9 @@ function m.fileContent(fname)
 end
 
 function m.encryptFileContent(fname, password)
-    local twofish = require 'twofish'
+    local lc = require 'luacryptorext'
     local content = m.fileContent(fname)
-    return twofish.encrypt(content, password)
+    return lc.encrypt(content, password)
 end
 
 function m.lua2c(fname_lua, password)
@@ -43,8 +43,8 @@ function m.lua2c(fname_lua, password)
     local fname_c = fname_lua:gsub('.lua$', '.c')
     local basename = fname_lua:gsub('.lua$', '')
     local f_c = io.open(fname_c, 'w')
-    local twofish_c = require 'twofish_c_code'
-    f_c:write(twofish_c)
+    local lc = require 'luacryptorext'
+    f_c:write(lc.luacryptorbase)
     local ttt = [[
     LUALIB_API int luaopen_@basename@(lua_State *L) {
         lua_getfield(L, LUA_REGISTRYINDEX, "__luacryptor_pwd");

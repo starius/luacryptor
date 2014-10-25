@@ -1,4 +1,4 @@
-all: twofish_c_code.lua test_ctr.exe twofish.so
+all: test_ctr.exe luacryptorext.so
 
 twofish-cpy/tables.h: twofish-cpy/makeCtables.py
 	python $< > $@
@@ -18,19 +18,21 @@ twofish_and_sha256.c: twofish_lib.c sha256_lib.c
 		-e 's/^void/static void/' \
 		-e 's/^inline/static/' > $@
 
-twofish.c: twofish_and_sha256.c lua_bindings.c
+luacryptorbase.c: twofish_and_sha256.c lua_bindings.c
 	cat $^ > $@
 
-twofish.so: twofish.c
+luacryptorext.c: luacryptorbase.c luaopen.c
+	cat $< > $@
+	echo 'const char luacryptorbase[] = {' >> $@
+	lua luacryptor.lua dump $< >> $@
+	echo '};' >> $@
+	cat luaopen.c >> $@
+
+luacryptorext.so: luacryptorext.c
 	gcc -shared -fpic -I /usr/include/lua5.1/ \
 		$^ -o $@ -llua5.1
 
-twofish_c_code.lua: twofish.c
-	echo 'return [===[' > $@
-	cat $< >> $@
-	echo ']===]' >> $@
-
-test_ctr.exe: test_ctr.c twofish.c
+test_ctr.exe: test_ctr.c luacryptorbase.c
 	gcc -I /usr/include/lua5.1/ $< -o $@ -llua5.1
 
 test: test_ctr.exe

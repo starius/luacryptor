@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "twofish.c"
+#include "luacryptorbase.c"
 
 void printHex(BYTE b[], int lim)
 {

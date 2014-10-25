@@ -8,5 +8,5 @@ tables.h
 twofish_lib.c
 sha256_lib.c
 twofish_and_sha256.c
-twofish.c
-twofish_c_code.lua
+luacryptorbase.c
+luacryptorext.c
