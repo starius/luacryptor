@@ -1,4 +1,4 @@
-all: test_ctr.exe luacryptorext.so
+all: test/ctr.exe luacryptorext.so
 
 twofish-cpy/tables.h: twofish-cpy/makeCtables.py
 	python $< > $@
@@ -32,11 +32,11 @@ luacryptorext.so: luacryptorext.c
 	gcc -shared -fpic -I /usr/include/lua5.1/ \
 		$^ -o $@ -llua5.1
 
-test_ctr.exe: test_ctr.c luacryptorbase.c
-	gcc -I /usr/include/lua5.1/ $< -o $@ -llua5.1
+test/ctr.exe: test/ctr.c luacryptorbase.c
+	gcc -I /usr/include/lua5.1/ -I . $< -o $@ -llua5.1
 
-test: test_ctr.exe
-	./test_ctr.exe
+test: test/ctr.exe
+	./test/ctr.exe
 
 .PHONY: all
 
