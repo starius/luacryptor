@@ -23,3 +23,9 @@ twofish.so: twofish.c
 	gcc -shared -fpic -I /usr/include/lua5.1/ \
 		$^ -o $@ -llua5.1
 
+test_ctr.exe: test_ctr.c twofish.c
+	gcc -I /usr/include/lua5.1/ $< -o $@ -llua5.1
+
+test: test_ctr.exe
+	./test_ctr.exe
+
