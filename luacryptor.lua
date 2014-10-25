@@ -48,9 +48,11 @@ LUALIB_API int luaopen_@modname@(lua_State *L) {
         return 0;
     }
     const char lua_enc_dump[] = { @lua_enc_dump@ };
+    lua_pushcfunction(L, twofish_decrypt);
     lua_pushlstring(L, lua_enc_dump, sizeof(lua_enc_dump));
     lua_pushstring(L, password);
-    if (!twofish_decrypt(L)) {
+    lua_call(L, 2, 1);
+    if (lua_type(L, -1) != LUA_TSTRING) {
         printf("Failed to decrypt Lua source\n");
         return 0;
     }
