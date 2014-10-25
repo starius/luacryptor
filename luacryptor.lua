@@ -2,12 +2,8 @@
 local m = {}
 
 function m.cleanSource(src)
-    src = src:gsub("function ([%w_%.]+):([%w_]+)%(%)",
-        "%1.%2 = function(self)")
-    src = src:gsub("function ([%w_%.]+):([%w_]+)%(",
-        "%1.%2 = function(self,")
-    src = src:gsub("function ([%w_%.]+)%(",
-        "%1 = function(")
+    src = src:gsub("function [%w_%.]+%(", "function (")
+    src = src:gsub(".*function", "function")
     return src
 end
 
