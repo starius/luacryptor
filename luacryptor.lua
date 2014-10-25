@@ -42,6 +42,12 @@ function m.encryptFileContent(fname, password)
     return lc.encrypt(content, password)
 end
 
+function m.decryptFileContent(fname, password)
+    local lc = require 'luacryptorext'
+    local content = m.fileContent(fname)
+    return lc.decrypt(content, password)
+end
+
 function m.embed_luaopen() return [[
 LUALIB_API int luaopen_@modname@(lua_State *L) {
     lua_getfield(L, LUA_REGISTRYINDEX, "__luacryptor_pwd");
