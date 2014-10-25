@@ -1,3 +1,5 @@
+all: twofish_c_code.lua test_ctr.exe twofish.so
+
 twofish-cpy/tables.h: twofish-cpy/makeCtables.py
 	python $< > $@
 
@@ -33,4 +35,6 @@ test_ctr.exe: test_ctr.c twofish.c
 
 test: test_ctr.exe
 	./test_ctr.exe
+
+.PHONY: all
 
