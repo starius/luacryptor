@@ -93,6 +93,13 @@ function m.lua2c(fname_lua, password)
     f_c:close()
 end
 
+function m.encrypt_function_src(fname_lua, password)
+    local mod = assert(loadfile(fname_lua))()
+    for name, func in pairs(mod) do
+        print(name)
+    end
+end
+
 if arg then
     if arg[1] == 'embed' then
         local fname = arg[2]
@@ -102,10 +109,15 @@ if arg then
         local fname = arg[2]
         local content = m.fileContent(fname)
         print(m.dump(content))
+    elseif arg[1] == 'enc-func-src' then
+        local fname = arg[2]
+        local password = arg[3]
+        m.encrypt_function_src(fname, password)
     else
         print([[Usage:
-        lua luacryptor.lua embed target.lua password
         lua luacryptor.lua dump any_file
+        lua luacryptor.lua embed target.lua password
+        lua luacryptor.lua enc-func-src target.lua password
         ]])
     end
 end
