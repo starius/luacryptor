@@ -78,7 +78,7 @@ function m.module_names(fname_lua)
     return fname_c, basename, modname
 end
 
-function m.lua2c(fname_lua, password)
+function m.embed(fname_lua, password)
     local lua_enc = m.encryptFileContent(fname_lua, password)
     local lua_enc_dump = m.dump(lua_enc)
     local fname_c, basename, modname = m.module_names(fname_lua)
@@ -225,7 +225,7 @@ LUALIB_API int luaopen_@modname@(lua_State *L) {
     return 1; // module table
 }]] end
 
-function m.encrypt_function_src(fname_lua, password)
+function m.encfunc(fname_lua, password)
     local mod = assert(loadfile(fname_lua))()
     local lines = m.get_lines_of_file(fname_lua)
     local name2enc = m.encrypt_functions(mod, lines, password)
@@ -245,23 +245,16 @@ end
 
 -- http://stackoverflow.com/a/4521960
 if not pcall(debug.getlocal, 4, 1) then
-    if arg[1] == 'embed' then
-        local fname = arg[2]
-        local password = arg[3]
-        m.lua2c(fname, password)
-    elseif arg[1] == 'dump' then
-        local fname = arg[2]
-        local content = m.fileContent(fname)
-        print(m.dump(content))
-    elseif arg[1] == 'enc-func-src' then
-        local fname = arg[2]
-        local password = arg[3]
-        m.encrypt_function_src(fname, password)
+    local unPack = unpack or table.unpack
+    local cmd, a1, a2, a3, a4 = unPack(arg)
+    local f = m[cmd]
+    if f then
+        f(a1, a2, a3, a4)
     else
         print([[Usage:
         lua luacryptor.lua dump any_file
         lua luacryptor.lua embed target.lua password
-        lua luacryptor.lua enc-func-src target.lua password
+        lua luacryptor.lua encfunc target.lua password
         ]])
     end
 end

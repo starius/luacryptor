@@ -1,6 +1,6 @@
 -- encrypt
 os.execute('rm sec_ret.so test/sec_ret.c')
-os.execute('lua luacryptor.lua enc-func-src ' ..
+os.execute('lua luacryptor.lua encfunc ' ..
     'test/sec_ret.lua 123')
 os.execute('gcc test/sec_ret.c -o sec_ret.so ' ..
     '-shared -fpic -I /usr/include/lua5.1/ -llua5.1')
