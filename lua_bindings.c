@@ -20,6 +20,15 @@ static void xor_block(BYTE* dst, const BYTE* src, int size) {
 
 #define BLOCK_BYTES 16
 
+static void xor_ctr(unsigned char* block, unsigned int ctr) {
+    unsigned char* current_byte = block + BLOCK_BYTES - 1;
+    while (ctr) {
+        *current_byte ^= ctr & 0xFF;
+        ctr >>= 8;
+        current_byte -= 1;
+    }
+}
+
 // If encr, encrypts, otherwise decrypts
 // Lua arguments:
 // string text (may be cleartext or encrypted text)
@@ -86,9 +95,7 @@ static int twofish_twoways(lua_State *L, int encr) {
         char* b_in = input + i * BLOCK_BYTES;
         char* b_out = output + i * BLOCK_BYTES;
         memcpy(b_out, nonce, BLOCK_BYTES);
-        int* ctr = (int*)(b_out + BLOCK_BYTES - sizeof(int));
-        // FIXME order of bytes in int
-        *ctr ^= i;
+        xor_ctr(b_out, i);
         encrypt(K, QF, b_out);
         xor_block(b_out, b_in, BLOCK_BYTES);
     }
@@ -98,8 +105,7 @@ static int twofish_twoways(lua_State *L, int encr) {
         char* b_out = output + normal_blocks * BLOCK_BYTES;
         char block[BLOCK_BYTES];
         memcpy(block, nonce, BLOCK_BYTES);
-        int* ctr = (int*)block;
-        *ctr ^= normal_blocks;
+        xor_ctr(block, i);
         encrypt(K, QF, block);
         memcpy(b_out, block, last_block_size);
         xor_block(b_out, b_in, last_block_size);
