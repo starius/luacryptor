@@ -54,7 +54,7 @@ LUALIB_API int luaopen_@modname@(lua_State *L) {
         printf("Failed to decrypt Lua source\n");
         return 0;
     }
-    int orig_size;
+    size_t orig_size;
     const char* orig = lua_tolstring(L, -1, &orig_size);
     int status = luaL_loadbuffer(L, orig, orig_size,
         "@basename@");

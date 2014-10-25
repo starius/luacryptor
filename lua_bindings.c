@@ -74,13 +74,14 @@ static int twofish_twoways(lua_State *L, int encr) {
     }
     char* result = malloc(result_bytes);
     // twofish - make nonce (~IV) for CTR mode
-    char* nonce;
-    char* input; // points to first block of data
+    const char* nonce;
+    const char* input; // points to first block of data
     char* output; // points to first block of data
     int normal_blocks;
     if (encr) {
-        nonce = result;
-        get_random_bytes(nonce, BLOCK_BYTES);
+        char* nonce_mut = result;
+        nonce = nonce_mut;
+        get_random_bytes(nonce_mut, BLOCK_BYTES);
         input = text;
         output = result + BLOCK_BYTES;
         normal_blocks = text_s / BLOCK_BYTES;
@@ -92,7 +93,7 @@ static int twofish_twoways(lua_State *L, int encr) {
     }
     int i;
     for (i = 0; i < normal_blocks; i++) {
-        char* b_in = input + i * BLOCK_BYTES;
+        const char* b_in = input + i * BLOCK_BYTES;
         char* b_out = output + i * BLOCK_BYTES;
         memcpy(b_out, nonce, BLOCK_BYTES);
         xor_ctr(b_out, i);
@@ -101,7 +102,7 @@ static int twofish_twoways(lua_State *L, int encr) {
     }
     int last_block_size = text_s % BLOCK_BYTES;
     if (last_block_size) {
-        char* b_in = input + normal_blocks * BLOCK_BYTES;
+        const char* b_in = input + normal_blocks * BLOCK_BYTES;
         char* b_out = output + normal_blocks * BLOCK_BYTES;
         char block[BLOCK_BYTES];
         memcpy(block, nonce, BLOCK_BYTES);
