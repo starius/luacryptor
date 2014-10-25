@@ -23,6 +23,12 @@ function m.dump(str)
     return str
 end
 
+function m.undump(str)
+    local arr = loadstring('return {' .. str .. '}')()
+    local unPack = unpack or table.unpack
+    return string.char(unPack(arr))
+end
+
 function m.fileContent(fname)
     local f = assert(io.open(fname,"rb"))
     local content = f:read("*a")
