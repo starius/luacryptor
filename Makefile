@@ -39,6 +39,7 @@ test/ctr.exe: test/ctr.c luacryptorbase.c
 test: test/ctr.exe
 	./test/ctr.exe
 	lua test/test_sec_ret.lua
+	lua test/test_sec_ret_enc_func.lua
 
 .PHONY: all
 
