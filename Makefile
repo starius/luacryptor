@@ -35,6 +35,7 @@ luacryptorext.so: luacryptorext.c
 test/ctr.exe: test/ctr.c luacryptorbase.c
 	gcc -I /usr/include/lua5.1/ -I . $< -o $@ -llua5.1
 
+.PHONY: test
 test: test/ctr.exe
 	./test/ctr.exe
 
