@@ -41,7 +41,7 @@ function m.lua2c(fname_lua, password)
     local fname_c = fname_lua:gsub('.lua$', '.c')
     local basename = fname_lua:gsub('.lua$', '')
     local f_c = io.open(fname_c, 'w')
-    local twofish_c = m.fileContent('twofish.c') -- TODO embed
+    local twofish_c = require 'twofish_c_code'
     f_c:write(twofish_c)
     local ttt = [[
     LUALIB_API int luaopen_@basename@(lua_State *L) {

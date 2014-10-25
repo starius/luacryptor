@@ -23,6 +23,11 @@ twofish.so: twofish.c
 	gcc -shared -fpic -I /usr/include/lua5.1/ \
 		$^ -o $@ -llua5.1
 
+twofish_c_code.lua: twofish.c
+	echo 'return [===[' > $@
+	cat $< >> $@
+	echo ']===]' >> $@
+
 test_ctr.exe: test_ctr.c twofish.c
 	gcc -I /usr/include/lua5.1/ $< -o $@ -llua5.1
 
