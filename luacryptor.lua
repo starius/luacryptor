@@ -150,19 +150,16 @@ function m.encrypt_functions(mod, lines, password)
 end
 
 function m.encrypted_selector(name2enc)
-    local t = [[static void luacryptor_get_encrypted(
-        const char* name, const char** result,
-        size_t* result_size) {
-            *result = 0;
-            *result_size = 0;]]
+    local t = [[static int luacryptor_get_encrypted(
+        lua_State* L, const char* name) {]]
     for name, src_enc in pairs(name2enc) do
         t = t .. 'if (strcmp(name, "' .. name .. '") == 0) {'
         t = t .. 'const char cc[] = {' ..
             m.dump(src_enc) .. '};'
-        t = t .. '*result = cc;'
-        t = t .. '*result_size = ' .. #src_enc .. '; }'
+        t = t .. 'lua_pushlstring(L, cc, sizeof(cc));'
+        t = t .. 'return 1; }'
     end
-    t = t .. '}'
+    t = t .. 'return 0; }'
     return t
 end
 
@@ -187,16 +184,13 @@ static int enc_func_call(lua_State* L) {
         printf("Failed to get final password\n");
         return 0;
     }
-    const char* src_enc;
-    size_t src_enc_size;
-    luacryptor_get_encrypted(name, &src_enc, &src_enc_size);
-    if (!src_enc) {
+    if (!luacryptor_get_encrypted(L, name)) {
         printf("Wrong function name\n");
         return 0;
     }
     // decrypt
     lua_pushcfunction(L, twofish_decrypt);
-    lua_pushlstring(L, src_enc, src_enc_size);
+    lua_pushvalue(L, -2); // src_enc
     lua_pushstring(L, password_name);
     lua_call(L, 2, 1);
     if (lua_type(L, -1) != LUA_TSTRING) {
