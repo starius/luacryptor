@@ -16,8 +16,7 @@ do
     function m.dump(str)
         str = str
             :gsub(".", numtab)
-            :gsub((".")
-            :rep(80), "%0\n")
+            :gsub(("."):rep(60), "%0\n")
         return str
     end
 end
