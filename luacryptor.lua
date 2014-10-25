@@ -37,6 +37,36 @@ function m.encryptFileContent(fname, password)
     return lc.encrypt(content, password)
 end
 
+m.embed_luaopen = [[
+LUALIB_API int luaopen_@modname@(lua_State *L) {
+    lua_getfield(L, LUA_REGISTRYINDEX, "__luacryptor_pwd");
+    const char* password = lua_tostring(L, -1);
+    lua_pop(L, 1);
+    if (!password) {
+        printf("Set password in regiter property "
+            "__luacryptor_pwd\n");
+        return 0;
+    }
+    const char lua_enc_dump[] = { @lua_enc_dump@ };
+    lua_pushlstring(L, lua_enc_dump, sizeof(lua_enc_dump));
+    lua_pushstring(L, password);
+    if (!twofish_decrypt(L)) {
+        printf("Failed to decrypt Lua source\n");
+        return 0;
+    }
+    int orig_size;
+    const char* orig = lua_tolstring(L, -1, &orig_size);
+    int status = luaL_loadbuffer(L, orig, orig_size,
+        "@basename@");
+    if (status) {
+        printf("%s\n", lua_tostring(L, -1));
+        lua_pop(L, 2); // orig, error message
+        return 0;
+    }
+    lua_pcall(L, 0, 1, 0);
+    return 1; // chunk execution result
+}]]
+
 function m.lua2c(fname_lua, password)
     local lua_enc = m.encryptFileContent(fname_lua, password)
     local lua_enc_dump = m.dump(lua_enc)
@@ -48,36 +78,7 @@ function m.lua2c(fname_lua, password)
     local f_c = io.open(fname_c, 'w')
     local lc = require 'luacryptorext'
     f_c:write(lc.luacryptorbase)
-    local ttt = [[
-    LUALIB_API int luaopen_@modname@(lua_State *L) {
-        lua_getfield(L, LUA_REGISTRYINDEX, "__luacryptor_pwd");
-        const char* password = lua_tostring(L, -1);
-        lua_pop(L, 1);
-        if (!password) {
-            printf("Set password in regiter property "
-                "__luacryptor_pwd\n");
-            return 0;
-        }
-        const char lua_enc_dump[] = { @lua_enc_dump@ };
-        lua_pushlstring(L, lua_enc_dump, sizeof(lua_enc_dump));
-        lua_pushstring(L, password);
-        if (!twofish_decrypt(L)) {
-            printf("Failed to decrypt Lua source\n");
-            return 0;
-        }
-        int orig_size;
-        const char* orig = lua_tolstring(L, -1, &orig_size);
-        int status = luaL_loadbuffer(L, orig, orig_size,
-            "@basename@");
-        if (status) {
-            printf("%s\n", lua_tostring(L, -1));
-            lua_pop(L, 2); // orig, error message
-            return 0;
-        }
-        lua_pcall(L, 0, 1, 0);
-        return 1; // chunk execution result
-    }]]
-    ttt = ttt:gsub('@[%w_]+@', {
+    local ttt = m.embed_luaopen:gsub('@[%w_]+@', {
         ['@modname@'] = modname,
         ['@basename@'] = basename,
         ['@lua_enc_dump@'] = lua_enc_dump,
