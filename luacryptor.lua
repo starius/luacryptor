@@ -80,12 +80,19 @@ function m.lua2c(fname_lua, password)
 end
 
 if arg then
-    if #arg == 2 then
-        local fname = arg[1]
-        local password = arg[2]
+    if arg[1] == 'embed' then
+        local fname = arg[2]
+        local password = arg[3]
         m.lua2c(fname, password)
+    elseif arg[1] == 'dump' then
+        local fname = arg[2]
+        local content = m.fileContent(fname)
+        print(m.dump(content))
     else
-        print('Usage: lua luacryptor.lua target.lua password')
+        print([[Usage:
+        lua luacryptor.lua embed target.lua password
+        lua luacryptor.lua dump any_file
+        ]])
     end
 end
 
