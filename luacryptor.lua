@@ -62,6 +62,7 @@ LUALIB_API int luaopen_@modname@(lua_State *L) {
         "@basename@");
     if (status) {
         printf("%s\n", lua_tostring(L, -1));
+        printf("Wrong password?\n");
         lua_pop(L, 2); // orig, error message
         return 0;
     }
