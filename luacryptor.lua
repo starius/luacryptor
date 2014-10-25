@@ -17,6 +17,9 @@ do
         str = str
             :gsub(".", numtab)
             :gsub(("."):rep(60), "%0\n")
+        if str:sub(-1, -1) == ',' then
+            str = str:sub(1, -2)
+        end
         return str
     end
 end
