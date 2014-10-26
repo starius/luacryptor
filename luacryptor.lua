@@ -59,7 +59,7 @@ LUALIB_API int luaopen_@modname@(lua_State *L) {
     const char* password = lua_tostring(L, -1);
     lua_pop(L, 1);
     if (!password) {
-        printf("Set password in regiter property:\n"
+        printf("Set password in register property:\n"
             "debug.getregistry().__luacryptor_pwd = 'pwd'\n");
         return 0;
     }
@@ -169,7 +169,7 @@ function m.encrypted_selector(name2enc)
     }
     lua_getfield(L, LUA_REGISTRYINDEX, "__luacryptor_pwd");
     if (lua_type(L, -1) != LUA_TSTRING) {
-        printf("Set password in regiter property:\n"
+        printf("Set password in register property:\n"
             "debug.getregistry().__luacryptor_pwd = 'pwd'\n");
         return 0;
     }
