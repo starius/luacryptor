@@ -240,6 +240,15 @@ static int enc_func_call(lua_State* L) {
 }
 
 static int enc_func_index(lua_State* L) {
+    const char* name = lua_tostring(L, -1);
+    if (!name) {
+        return 0;
+    }
+    if (!luacryptor_get_encrypted(L, name)) {
+        return 0;
+    } else {
+        lua_pop(L, 1);
+    }
     lua_newtable(L); // function
     lua_pushvalue(L, -2); // name
     lua_setfield(L, -2, "name"); // function.name = name
