@@ -192,18 +192,23 @@ function m.encrypted_selector(name2enc)
     local i = 0
     for name, src_enc in pairs(name2enc) do
         i = i + 1
-        t = t .. 'const char nn' .. i .. '[] = {' ..
-            m.dump(name) .. '};'
-        t = t .. 'if (name_enc_size == ' .. #name .. ' && '
-        t = t .. 'memcmp(name_enc, nn' .. i .. ', '
-        t = t .. #name .. ')) {'
-        t = t .. 'const char cc[] = {' ..
-            m.dump(src_enc) .. '};'
-        t = t .. 'lua_pushcfunction(L, twofish_decrypt);'
-        t = t .. 'lua_pushlstring(L, cc, sizeof(cc));'
-        t = t .. 'lua_pushvalue(L, 2); /* password .. name */'
-        t = t .. 'lua_call(L, 2, 1);'
-        t = t .. 'return 1; }'
+        local tt = [[
+        const char nn@i@[] = { @dump(name)@ };
+        if (name_enc_size == @#name@ &&
+            memcmp(name_enc, nn@i@, @#name@)) {
+            const char cc[] = { @dump(src_enc)@ };
+            lua_pushcfunction(L, twofish_decrypt);
+            lua_pushlstring(L, cc, sizeof(cc));
+            lua_pushvalue(L, 2); /* password .. name */
+            lua_call(L, 2, 1);
+            return 1;
+        } ]]
+        t = t .. tt:gsub('@[%w_#()]+@', {
+            ['@i@'] = i,
+            ['@dump(name)@'] = m.dump(name),
+            ['@#name@'] = #name,
+            ['@dump(src_enc)@'] = m.dump(src_enc),
+        })
     end
     t = t .. 'return 0; }'
     return t
