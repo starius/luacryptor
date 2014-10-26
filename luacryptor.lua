@@ -299,11 +299,11 @@ if not pcall(debug.getlocal, 4, 1) then
         print(f(a1, a2, a3, a4))
     else
         print([[Usage:
-        lua luacryptor.lua dump any_file
-        lua luacryptor.lua embed target.lua password
-        lua luacryptor.lua encfunc target.lua password
-        lua luacryptor.lua buildso module.c [module.so]
-        lua luacryptor.lua buildexe app.c [app.exe]
+        ./luacryptor.lua dump any_file
+        ./luacryptor.lua embed target.lua password
+        ./luacryptor.lua encfunc target.lua password
+        ./luacryptor.lua buildso module.c [module.so]
+        ./luacryptor.lua buildexe app.c [app.exe]
         ]])
     end
 end
