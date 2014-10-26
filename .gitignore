@@ -1,6 +1,7 @@
 *.swp
 
 *.pyc
+*.o
 *.so
 *.exe
 *.out
