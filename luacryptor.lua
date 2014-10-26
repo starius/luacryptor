@@ -134,7 +134,7 @@ function m.get_source_of_function(name, func, lines)
     return src
 end
 
-function m.encrypt_functions(mod, lines, password)
+function m.encrypt_functions(mod, lines, password, bytecode)
     local lc = require 'luacryptorext'
     local name2enc = {}
     for name, func in pairs(mod) do
@@ -148,6 +148,10 @@ function m.encrypt_functions(mod, lines, password)
             assert(not debug.getupvalue(func, 2),
                 'You can use only one upvalue (module itself)')
             src = 'local ' .. upvname .. '\n' .. src
+        end
+        if bytecode then
+            src = 'return function() ' .. src .. ' end'
+            src = string.dump(loadstring(src))
         end
         local name_enc = lc.sha256(password .. name)
         local src_enc = lc.encrypt(src, password .. name)
@@ -237,6 +241,7 @@ static int enc_func_call(lua_State* L) {
         printf("Wrong password?\n");
         return 0;
     }
+    @bytecode@lua_pcall(L, 0, 1, 0); // get wrapper
     lua_pcall(L, 0, 1, 0); // get original function
     // pass module as first upvalue
     lua_getfield(L, 1, "module");
@@ -293,10 +298,11 @@ LUALIB_API int luaopen_@modname@(lua_State *L) {
     return 1; // module table
 }]] end
 
-function m.encfunc(fname_lua, password)
+function m.encfunc(fname_lua, password, bytecode)
     local mod = assert(loadfile(fname_lua))()
     local lines = m.get_lines_of_file(fname_lua)
-    local name2enc = m.encrypt_functions(mod, lines, password)
+    local name2enc = m.encrypt_functions(mod, lines, password,
+        bytecode)
     local encrypted_selector = m.encrypted_selector(name2enc)
     local fname_c, basename, modname = m.module_names(fname_lua)
     local f_c = io.open(fname_c, 'w')
@@ -306,6 +312,7 @@ function m.encfunc(fname_lua, password)
     local ttt = m.enc_func_luaopen():gsub('@[%w_]+@', {
         ['@modname@'] = modname,
         ['@basename@'] = basename,
+        ['@bytecode@'] = bytecode and ' ' or '//',
     })
     f_c:write(ttt)
     f_c:close()
@@ -347,7 +354,7 @@ if not pcall(debug.getlocal, 4, 1) then
         ./luacryptor.lua dump string
         ./luacryptor.lua dumpFile file
         ./luacryptor.lua embed target.lua password
-        ./luacryptor.lua encfunc target.lua password
+        ./luacryptor.lua encfunc target.lua password [bytecode]
         ./luacryptor.lua buildso module.c [module.so]
         ./luacryptor.lua buildexe app.c [app.exe]
         ]])
