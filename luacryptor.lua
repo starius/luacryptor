@@ -342,6 +342,50 @@ function m.buildexe(cfile, exefile)
     m.build(cfile, exefile, 'exe')
 end
 
+function m.help()
+    print([[
+Luacryptor creates .c file, which can be compiled into
+binary library. Loading this library into Lua works as if
+original Lua module was loaded.
+
+Loading requires password. Set password in register:
+In Lua:
+    debug.getregistry().__luacryptor_pwd = "password"
+In C:
+    lua_pushstring(L, "password");
+    lua_setfield(L, LUA_REGISTRYINDEX, "__luacryptor_pwd");
+
+Command "embed" encrypts whole Lua file. No restrictions
+on source Lua file.
+
+Command "encfunc" encrypts individual functions in Lua module.
+Lua module must return table, all elements of which are
+functions. Functions may have up to one upvalue, module
+itself. Source of luacryptor.lua can serve as example.
+
+Option --bytecode tells luacryptor to compile Lua sources
+to bytecode before encrypting. Target and Host Lua version
+must have compatible bytecode versions.
+
+Encryption: Twofish with 256 bit key in CTR mode.
+CTR mode is implemented as follows:
+* 16 bytes (nonce) are read from /dev/urandom and written
+    in the beginning of cryptotext.
+* int counter = 0
+* For each block:
+ 1) Calculate XOR(nonce, counter). Counter is aligned to
+    the end of block in Big-endian mode.
+ 2) Twofish(block)
+ 3) XOR result with input
+ 4) Increment counter
+No padding required. CTR works like stream mode.
+
+Password is hashed with SHA-256.
+Function names are replaced with sha256(password .. name).
+File and function bodies are encrypted with twofish with
+key=sha256(password .. name).
+]]) end
+
 -- http://stackoverflow.com/a/4521960
 if not pcall(debug.getlocal, 4, 1) then
     local unPack = unpack or table.unpack
@@ -351,6 +395,7 @@ if not pcall(debug.getlocal, 4, 1) then
         print(f(a1, a2, a3, a4))
     else
         print([[Usage:
+    ./luacryptor.lua help
     ./luacryptor.lua dump string
     ./luacryptor.lua dumpFile file
     ./luacryptor.lua embed target.lua password
