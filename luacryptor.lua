@@ -266,17 +266,28 @@ function m.encfunc(fname_lua, password)
     f_c:close()
 end
 
-function m.buildso(cfile, sofile)
-    if sofile and sofile:sub(-1) == '/' then
+function m.build(cfile, binfile, ext)
+    if binfile and binfile:sub(-1) == '/' then
         local cfile1 = cfile:gsub('.+/', '')
-        sofile = sofile .. cfile1:gsub('.c$', '.so')
-    elseif not sofile then
-        sofile = cfile:gsub('.c$', '.so')
+        binfile = binfile .. cfile1:gsub('.c$', '.' .. ext)
+    elseif not binfile then
+        binfile = cfile:gsub('.c$', '.' .. ext)
     end
     local headers = '/usr/include/lua5.1/'
     local lib = 'lua5.1'
-    local cmd = 'cc %s -o %s -shared -fpic -I %s -l%s'
-    os.execute(string.format(cmd, cfile, sofile, headers, lib))
+    local cmd = 'cc %s -o %s -I . -I %s -l%s'
+    if ext == 'so' then
+        cmd = cmd .. ' -shared -fpic'
+    end
+    os.execute(string.format(cmd, cfile, binfile, headers, lib))
+end
+
+function m.buildso(cfile, sofile)
+    m.build(cfile, sofile, 'so')
+end
+
+function m.buildexe(cfile, exefile)
+    m.build(cfile, exefile, 'exe')
 end
 
 -- http://stackoverflow.com/a/4521960
@@ -292,6 +303,7 @@ if not pcall(debug.getlocal, 4, 1) then
         lua luacryptor.lua embed target.lua password
         lua luacryptor.lua encfunc target.lua password
         lua luacryptor.lua buildso module.c [module.so]
+        lua luacryptor.lua buildexe app.c [app.exe]
         ]])
     end
 end
