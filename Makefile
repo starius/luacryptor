@@ -29,11 +29,10 @@ luacryptorext.c: luacryptorbase.c luaopen.c
 	cat luaopen.c >> $@
 
 luacryptorext.so: luacryptorext.c
-	gcc -shared -fpic -I /usr/include/lua5.1/ \
-		$^ -o $@ -llua5.1
+	lua luacryptor.lua buildso $^
 
 test/ctr.exe: test/ctr.c luacryptorbase.c
-	gcc -I /usr/include/lua5.1/ -I . $< -o $@ -llua5.1
+	lua luacryptor.lua buildexe $<
 
 .PHONY: test
 test: test/ctr.exe
