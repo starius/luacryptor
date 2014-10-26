@@ -149,8 +149,9 @@ function m.encrypt_functions(mod, lines, password)
                 'You can use only one upvalue (module itself)')
             src = 'local ' .. upvname .. '\n' .. src
         end
+        local name_enc = lc.encrypt(name, password .. name)
         local src_enc = lc.encrypt(src, password .. name)
-        name2enc[name] = src_enc
+        name2enc[name_enc] = src_enc
     end
     return name2enc
 end
@@ -158,8 +159,7 @@ end
 function m.encrypted_selector(name2enc)
     local t = [[static int luacryptor_get_decrypted(
         lua_State* L) {
-    const char* name = lua_tostring(L, 1);
-    if (!name) {
+    if (!lua_tostring(L, 1)) {
         // Unknown function name
         return 0;
     }
@@ -171,18 +171,37 @@ function m.encrypted_selector(name2enc)
     }
     lua_pushvalue(L, 1); // name
     lua_concat(L, 2); // password .. name
-    if (!lua_tostring(L, -1)) {
+    // 2 is password .. name
+    if (!lua_tostring(L, 2)) {
         printf("Failed to get final password\n");
         return 0;
     }
+    // get target encrypted name
+    lua_pushcfunction(L, twofish_encrypt);
+    lua_pushvalue(L, 1); // name
+    lua_pushvalue(L, 2); /* password .. name */
+    lua_call(L, 2, 1);
+    // 3 is encrypted name
+    size_t name_enc_size;
+    const char* name_enc = lua_tolstring(L, 3, &name_enc_size);
+    if (!name_enc) {
+        printf("Failed to get encrypted name\n");
+        return 0;
+    }
     ]]
+    local i = 0
     for name, src_enc in pairs(name2enc) do
-        t = t .. 'if (strcmp(name, "' .. name .. '") == 0) {'
+        i = i + 1
+        t = t .. 'const char nn' .. i .. '[] = {' ..
+            m.dump(name) .. '};'
+        t = t .. 'if (name_enc_size == ' .. #name .. ' && '
+        t = t .. 'memcmp(name_enc, nn' .. i .. ', '
+        t = t .. #name .. ')) {'
         t = t .. 'const char cc[] = {' ..
             m.dump(src_enc) .. '};'
         t = t .. 'lua_pushcfunction(L, twofish_decrypt);'
         t = t .. 'lua_pushlstring(L, cc, sizeof(cc));'
-        t = t .. 'lua_pushvalue(L, -3); /* password .. name */'
+        t = t .. 'lua_pushvalue(L, 2); /* password .. name */'
         t = t .. 'lua_call(L, 2, 1);'
         t = t .. 'return 1; }'
     end
