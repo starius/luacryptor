@@ -1,0 +1,20 @@
+#!/usr/bin/env lua
+
+local luacryptor = require "luacryptor"
+
+local unPack = unpack or table.unpack
+local cmd, a1, a2, a3, a4 = unPack(arg)
+local f = luacryptor[cmd]
+if f then
+    print(f(a1, a2, a3, a4))
+else
+    print([[Usage:
+    luacryptor embed target.lua password
+    luacryptor encfunc target.lua password [--bytecode]
+    luacryptor dump string
+    luacryptor dumpFile file
+    luacryptor buildso module.c [module.so]
+    luacryptor buildexe app.c [app.exe]
+    ]])
+end
+

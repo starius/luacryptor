@@ -1,5 +1,3 @@
-#!/usr/bin/env lua
-
 local m = {}
 
 function m.cleanSource(src)
@@ -340,25 +338,6 @@ end
 
 function m.buildexe(cfile, exefile)
     m.build(cfile, exefile, 'exe')
-end
-
--- http://stackoverflow.com/a/4521960
-if not pcall(debug.getlocal, 4, 1) then
-    local unPack = unpack or table.unpack
-    local cmd, a1, a2, a3, a4 = unPack(arg)
-    local f = m[cmd]
-    if f then
-        print(f(a1, a2, a3, a4))
-    else
-        print([[Usage:
-    ./luacryptor.lua embed target.lua password
-    ./luacryptor.lua encfunc target.lua password [--bytecode]
-    ./luacryptor.lua dump string
-    ./luacryptor.lua dumpFile file
-    ./luacryptor.lua buildso module.c [module.so]
-    ./luacryptor.lua buildexe app.c [app.exe]
-        ]])
-    end
 end
 
 return m

@@ -24,15 +24,15 @@ luacryptorbase.c: twofish_and_sha256.c lua_bindings.c
 luacryptorext.c: luacryptorbase.c luaopen.c
 	cat $< > $@
 	echo 'const char luacryptorbase[] = {' >> $@
-	./luacryptor.lua dumpFile $< >> $@
+	./luacryptor dumpFile $< >> $@
 	echo '};' >> $@
 	cat luaopen.c >> $@
 
 luacryptorext.so: luacryptorext.c
-	./luacryptor.lua buildso $^
+	./luacryptor buildso $^
 
 test/ctr.exe: test/ctr.c luacryptorbase.c
-	./luacryptor.lua buildexe $<
+	./luacryptor buildexe $<
 
 .PHONY: test
 test: all

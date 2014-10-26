@@ -1,8 +1,8 @@
 -- encrypt
 os.execute('rm sec_ret.so test/sec_ret.c')
-os.execute('./luacryptor.lua encfunc ' ..
+os.execute('./luacryptor encfunc ' ..
     'test/sec_ret.lua 123')
-os.execute('./luacryptor.lua buildso ' ..
+os.execute('./luacryptor buildso ' ..
     'test/sec_ret.c sec_ret.so')
 
 -- load

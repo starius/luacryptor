@@ -1,7 +1,7 @@
 -- encrypt
 os.execute('rm luacryptor.c test/luacryptor.so')
-os.execute('./luacryptor.lua encfunc luacryptor.lua 123')
-os.execute('./luacryptor.lua buildso ' ..
+os.execute('./luacryptor encfunc luacryptor.lua 123')
+os.execute('./luacryptor buildso ' ..
     'luacryptor.c test/luacryptor.so')
 
 package.path = ''
