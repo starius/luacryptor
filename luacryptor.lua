@@ -195,7 +195,7 @@ function m.encrypted_selector(name2enc)
         local tt = [[
         const char nn@i@[] = { @dump(name)@ };
         if (name_enc_size == @#name@ &&
-            memcmp(name_enc, nn@i@, @#name@)) {
+            memcmp(name_enc, nn@i@, @#name@) == 0) {
             const char cc[] = { @dump(src_enc)@ };
             lua_pushcfunction(L, twofish_decrypt);
             lua_pushlstring(L, cc, sizeof(cc));
