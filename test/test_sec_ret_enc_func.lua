@@ -7,6 +7,6 @@ os.execute('gcc test/sec_ret.c -o sec_ret.so ' ..
 
 -- load
 debug.getregistry().__luacryptor_pwd = '123'
-local sec_ret = require('sec_ret').f()
+local sec_ret = require('sec_ret').f('a', 'b')
 assert(sec_ret == 'secret')
 
