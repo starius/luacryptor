@@ -29,6 +29,14 @@ static void xor_ctr(unsigned char* block, unsigned int ctr) {
     }
 }
 
+static void calc_sha256(BYTE* buffer32,
+        const uint8* text, size_t size) {
+    sha256_context ctx;
+    sha256_starts(&ctx);
+    sha256_update(&ctx, (uint8*)text, size);
+    sha256_finish(&ctx, buffer32);
+}
+
 // If encr, encrypts, otherwise decrypts
 // Lua arguments:
 // string text (may be cleartext or encrypted text)
@@ -49,13 +57,9 @@ static int twofish_twoways(lua_State *L, int encr) {
     const char* text = lua_tolstring(L, 1, &text_s);
     size_t password_s;
     const char* password = lua_tolstring(L, 2, &password_s);
-    //
-    unsigned char sha256sum[32];
     // sha256
-    sha256_context ctx;
-    sha256_starts(&ctx);
-    sha256_update(&ctx, (uint8*)password, password_s);
-    sha256_finish(&ctx, sha256sum);
+    unsigned char sha256sum[32];
+    calc_sha256(sha256sum, password, password_s);
     // twofish - prepare key
     u32 *S;
     u32 K[40];
