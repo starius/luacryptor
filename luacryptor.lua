@@ -37,6 +37,10 @@ function m.fileContent(fname)
     return content
 end
 
+function m.dumpFile(fname)
+    return m.dump(m.fileContent(fname))
+end
+
 function m.encryptFileContent(fname, password)
     local lc = require 'luacryptorext'
     local content = m.fileContent(fname)
@@ -299,7 +303,8 @@ if not pcall(debug.getlocal, 4, 1) then
         print(f(a1, a2, a3, a4))
     else
         print([[Usage:
-        ./luacryptor.lua dump any_file
+        ./luacryptor.lua dump string
+        ./luacryptor.lua dumpFile file
         ./luacryptor.lua embed target.lua password
         ./luacryptor.lua encfunc target.lua password
         ./luacryptor.lua buildso module.c [module.so]
