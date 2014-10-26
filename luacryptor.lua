@@ -217,7 +217,12 @@ static int enc_func_call(lua_State* L) {
     int argc = lua_gettop(L);
     lua_pushcfunction(L, luacryptor_get_decrypted);
     lua_getfield(L, 1, "name");
-    lua_pcall(L, 1, 1, 0);
+    int s = lua_pcall(L, 1, 1, 0);
+    if (s) {
+        printf("%s\n", lua_tostring(L, -1));
+        printf("Failed to decrypt Lua source\n");
+        return 0;
+    }
     if (lua_type(L, -1) != LUA_TSTRING) {
         printf("Failed to decrypt Lua source\n");
         return 0;
