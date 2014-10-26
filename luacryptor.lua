@@ -207,8 +207,15 @@ static int enc_func_call(lua_State* L) {
         return 0;
     }
     lua_pcall(L, 0, 1, 0); // get original function
-    lua_pcall(L, 0, 0, 0); // call original function
-    return 0;
+    lua_pcall(L, 0, LUA_MULTRET, 0); // call original function
+    int results = 0;
+    int last_index = -1;
+    size_t dummy;
+    while (lua_tolstring(L, last_index, &dummy) != orig) {
+        results += 1;
+        last_index -= 1;
+    }
+    return results;
 }
 
 static int enc_func_index(lua_State* L) {
