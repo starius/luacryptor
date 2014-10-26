@@ -40,6 +40,7 @@ test: all
 	lua test/decrypt-short.lua
 	lua test/test_sec_ret.lua
 	lua test/test_sec_ret_enc_func.lua
+	lua test/self-test.lua
 
 .PHONY: all
 

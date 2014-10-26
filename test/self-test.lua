@@ -9,7 +9,6 @@ package.cpath = './test/luacryptor.so;./luacryptorext.so'
 
 -- load
 debug.getregistry().__luacryptor_pwd = '123'
---local lc = require('luacryptor')
-lc = require('luacryptor')
---assert(lc.undump(lc.dump('test')) == 'test')
+local lc = require('luacryptor')
+assert(lc.undump(lc.dump('test')) == 'test')
 
