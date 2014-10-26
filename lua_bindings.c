@@ -113,7 +113,7 @@ static int twofish_twoways(lua_State *L, int encr) {
         char* b_out = output + normal_blocks * BLOCK_BYTES;
         char block[BLOCK_BYTES];
         memcpy(block, nonce, BLOCK_BYTES);
-        xor_ctr(block, i);
+        xor_ctr(block, normal_blocks);
         encrypt(K, QF, block);
         memcpy(b_out, block, last_block_size);
         xor_block(b_out, b_in, last_block_size);
