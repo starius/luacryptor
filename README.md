@@ -37,6 +37,14 @@ Option `--bytecode` tells luacryptor to compile Lua sources
 to bytecode before encrypting. Target and Host Lua version
 must have compatible bytecode versions.
 
+## Installation
+
+Using LuaRocks:
+
+```bash
+$ sudo luarocks install luacryptor
+```
+
 ## Encryption
 
 Twofish with 256 bit key in CTR mode.
