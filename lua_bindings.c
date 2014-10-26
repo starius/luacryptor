@@ -60,7 +60,7 @@ static int twofish_twoways(lua_State *L, int encr) {
     u32 *S;
     u32 K[40];
     int k;
-    keySched(sha256sum, 128, &S, K, &k);
+    keySched(sha256sum, 256, &S, K, &k);
     u32 QF[4][256];
     fullKey(S, k, QF);
     free(S);
