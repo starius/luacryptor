@@ -141,12 +141,13 @@ function m.encrypt_functions(mod, lines, password)
         assert(type(func) == 'function',
             'Module must contain only functions!')
         local src = m.get_source_of_function(name, func, lines)
-        local _, upv = debug.getupvalue(func, 1)
+        local upvname, upv = debug.getupvalue(func, 1)
         if upv then
             assert(upv == mod,
                 'You can use only module as upvalue')
             assert(not debug.getupvalue(func, 2),
                 'You can use only one upvalue (module itself)')
+            src = 'local ' .. upvname .. '\n' .. src
         end
         local src_enc = lc.encrypt(src, password .. name)
         name2enc[name] = src_enc
@@ -213,6 +214,12 @@ static int enc_func_call(lua_State* L) {
         return 0;
     }
     lua_pcall(L, 0, 1, 0); // get original function
+    // pass module as first upvalue
+    lua_getfield(L, 1, "module");
+    if (lua_setupvalue(L, -2, 1) == 0) {
+         // no upvalues here
+         lua_pop(L, 1);
+    }
     // mark stack index before orig
     int marker;
     lua_pushlightuserdata(L, &marker);
@@ -236,6 +243,8 @@ static int enc_func_index(lua_State* L) {
     lua_newtable(L); // function
     lua_pushvalue(L, -2); // name
     lua_setfield(L, -2, "name"); // function.name = name
+    lua_pushvalue(L, 1); // module
+    lua_setfield(L, -2, "module"); // function.module = module
     lua_newtable(L); // metatable
     lua_pushcfunction(L, enc_func_call);
     lua_setfield(L, -2, "__call");
