@@ -13,10 +13,13 @@ original Lua module was loaded.
 Loading requires password. Set password in Lua registry.
 
 Lua:
+
 ```lua
     debug.getregistry().__luacryptor_pwd = "password"
 ```
+
 C:
+
 ```c
     lua_pushstring(L, "password");
     lua_setfield(L, LUA_REGISTRYINDEX, "__luacryptor_pwd");
@@ -39,20 +42,21 @@ must have compatible bytecode versions.
 Twofish with 256 bit key in CTR mode.
 CTR mode is implemented as follows:
 
- * 16 bytes (nonce) are read from /dev/urandom and written
+  * 16 bytes (nonce) are read from /dev/urandom and written
      in the beginning of cryptotext.
- * int counter = 0
- * For each block:
-  - Calculate XOR(nonce, counter). Counter is aligned to
-     the end of block in Big-endian mode.
-  - Twofish(block)
-  - XOR result with input
-  - Increment counter
+  * int counter = 0
+  * For each block:
+    * Calculate XOR(nonce, counter). Counter is aligned to
+      the end of block in Big-endian mode.
+    * Twofish(block)
+    * XOR result with input
+    * Increment counter
 
 No padding required. CTR works like stream mode.
 
 Password is hashed with SHA-256.
 Function names are replaced with `sha256(password .. name)`.
+
 File and function bodies are encrypted with twofish with
 `key=sha256(password .. name)`.
 
