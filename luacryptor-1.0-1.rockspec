@@ -1,7 +1,8 @@
 package = "LuaCryptor"
 version = "1.0-1"
 source = {
-    url = "..." -- We don't have one yet
+    url = "https://github.com/starius/luacryptor/" ..
+        "releases/download/0.1/luacryptor-1.0.tar.gz"
 }
 description = {
     summary =
