@@ -156,13 +156,34 @@ function m.encrypt_functions(mod, lines, password)
 end
 
 function m.encrypted_selector(name2enc)
-    local t = [[static int luacryptor_get_encrypted(
-        lua_State* L, const char* name) {]]
+    local t = [[static int luacryptor_get_decrypted(
+        lua_State* L) {
+    const char* name = lua_tostring(L, 1);
+    if (!name) {
+        // Unknown function name
+        return 0;
+    }
+    lua_getfield(L, LUA_REGISTRYINDEX, "__luacryptor_pwd");
+    if (lua_type(L, -1) != LUA_TSTRING) {
+        printf("Set password in regiter property "
+            "__luacryptor_pwd\n");
+        return 0;
+    }
+    lua_pushvalue(L, 1); // name
+    lua_concat(L, 2); // password .. name
+    if (!lua_tostring(L, -1)) {
+        printf("Failed to get final password\n");
+        return 0;
+    }
+    ]]
     for name, src_enc in pairs(name2enc) do
         t = t .. 'if (strcmp(name, "' .. name .. '") == 0) {'
         t = t .. 'const char cc[] = {' ..
             m.dump(src_enc) .. '};'
+        t = t .. 'lua_pushcfunction(L, twofish_decrypt);'
         t = t .. 'lua_pushlstring(L, cc, sizeof(cc));'
+        t = t .. 'lua_pushvalue(L, -3); /* password .. name */'
+        t = t .. 'lua_call(L, 2, 1);'
         t = t .. 'return 1; }'
     end
     t = t .. 'return 0; }'
@@ -172,38 +193,14 @@ end
 function m.enc_func_luaopen() return [[
 static int enc_func_call(lua_State* L) {
     int argc = lua_gettop(L);
-    lua_getfield(L, LUA_REGISTRYINDEX, "__luacryptor_pwd");
-    if (lua_type(L, -1) != LUA_TSTRING) {
-        printf("Set password in regiter property "
-            "__luacryptor_pwd\n");
-        return 0;
-    }
+    lua_pushcfunction(L, luacryptor_get_decrypted);
     lua_getfield(L, 1, "name");
-    const char* name = lua_tostring(L, -1);
-    if (!name) {
-        printf("Unknown function name\n");
-        return 0;
-    }
-    lua_concat(L, 2); // password .. name
-    const char* password_name = lua_tostring(L, -1);
-    lua_pop(L, 1);
-    if (!password_name) {
-        printf("Failed to get final password\n");
-        return 0;
-    }
-    if (!luacryptor_get_encrypted(L, name)) {
-        printf("Wrong function name\n");
-        return 0;
-    }
-    // decrypt
-    lua_pushcfunction(L, twofish_decrypt);
-    lua_pushvalue(L, -2); // src_enc
-    lua_pushstring(L, password_name);
-    lua_call(L, 2, 1);
+    lua_pcall(L, 1, 1, 0);
     if (lua_type(L, -1) != LUA_TSTRING) {
         printf("Failed to decrypt Lua source\n");
         return 0;
     }
+    // load
     size_t orig_size;
     const char* orig = lua_tolstring(L, -1, &orig_size);
     int status = luaL_loadbuffer(L, orig, orig_size,
@@ -240,15 +237,14 @@ static int enc_func_call(lua_State* L) {
 }
 
 static int enc_func_index(lua_State* L) {
-    const char* name = lua_tostring(L, -1);
-    if (!name) {
+    lua_pushcfunction(L, luacryptor_get_decrypted);
+    lua_pushvalue(L, -2); // name
+    lua_pcall(L, 1, 1, 0);
+    if (lua_type(L, -1) != LUA_TSTRING) {
         return 0;
     }
-    if (!luacryptor_get_encrypted(L, name)) {
-        return 0;
-    } else {
-        lua_pop(L, 1);
-    }
+    lua_pop(L, 1); // remove decrypted function
+    // name is -1
     lua_newtable(L); // function
     lua_pushvalue(L, -2); // name
     lua_setfield(L, -2, "name"); // function.name = name
