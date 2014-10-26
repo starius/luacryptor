@@ -35,7 +35,7 @@ test/ctr.exe: test/ctr.c luacryptorbase.c
 	./luacryptor.lua buildexe $<
 
 .PHONY: test
-test: test/ctr.exe
+test: all
 	./test/ctr.exe
 	lua test/test_sec_ret.lua
 	lua test/test_sec_ret_enc_func.lua
