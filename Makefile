@@ -24,7 +24,7 @@ luacryptorbase.c: twofish_and_sha256.c lua_bindings.c
 luacryptorext.c: luacryptorbase.c luaopen.c
 	cat $< > $@
 	echo 'const char luacryptorbase[] = {' >> $@
-	./luacryptor.lua dump $< >> $@
+	./luacryptor.lua dumpFile $< >> $@
 	echo '};' >> $@
 	cat luaopen.c >> $@
 
