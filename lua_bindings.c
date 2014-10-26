@@ -72,6 +72,9 @@ static int twofish_twoways(lua_State *L, int encr) {
     } else {
         result_bytes = text_s - BLOCK_BYTES;
     }
+    if (result_bytes <= 0) {
+        return 0;
+    }
     char* result = malloc(result_bytes);
     // twofish - make nonce (~IV) for CTR mode
     const char* nonce;
