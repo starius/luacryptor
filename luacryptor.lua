@@ -165,6 +165,7 @@ end
 
 function m.enc_func_luaopen() return [[
 static int enc_func_call(lua_State* L) {
+    int argc = lua_gettop(L);
     lua_getfield(L, LUA_REGISTRYINDEX, "__luacryptor_pwd");
     if (lua_type(L, -1) != LUA_TSTRING) {
         printf("Set password in regiter property "
@@ -207,11 +208,19 @@ static int enc_func_call(lua_State* L) {
         return 0;
     }
     lua_pcall(L, 0, 1, 0); // get original function
-    lua_pcall(L, 0, LUA_MULTRET, 0); // call original function
+    // mark stack index before orig
+    int marker;
+    lua_pushlightuserdata(L, &marker);
+    // push orig func and its args
+    lua_pushvalue(L, -2);
+    int i;
+    for (i = 2; i <= argc; i++) {
+        lua_pushvalue(L, i);
+    }
+    lua_pcall(L, argc - 1, LUA_MULTRET, 0); // call orig func
     int results = 0;
     int last_index = -1;
-    size_t dummy;
-    while (lua_tolstring(L, last_index, &dummy) != orig) {
+    while (lua_touserdata(L, last_index) != &marker) {
         results += 1;
         last_index -= 1;
     }
