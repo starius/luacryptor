@@ -265,6 +265,19 @@ function m.encfunc(fname_lua, password)
     f_c:close()
 end
 
+function m.buildso(cfile, sofile)
+    if sofile and sofile:sub(-1) == '/' then
+        local cfile1 = cfile:gsub('.+/', '')
+        sofile = sofile .. cfile1:gsub('.c$', '.so')
+    elseif not sofile then
+        sofile = cfile:gsub('.c$', '.so')
+    end
+    local headers = '/usr/include/lua5.1/'
+    local lib = 'lua5.1'
+    local cmd = 'cc %s -o %s -shared -fpic -I %s -l%s'
+    os.execute(string.format(cmd, cfile, sofile, headers, lib))
+end
+
 -- http://stackoverflow.com/a/4521960
 if not pcall(debug.getlocal, 4, 1) then
     local unPack = unpack or table.unpack
@@ -277,6 +290,7 @@ if not pcall(debug.getlocal, 4, 1) then
         lua luacryptor.lua dump any_file
         lua luacryptor.lua embed target.lua password
         lua luacryptor.lua encfunc target.lua password
+        lua luacryptor.lua buildso module.c [module.so]
         ]])
     end
 end
