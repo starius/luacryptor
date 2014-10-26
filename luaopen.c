@@ -7,6 +7,8 @@ LUALIB_API int luaopen_luacryptorext(lua_State *L) {
     lua_pushlstring(L, luacryptorbase,
             sizeof(luacryptorbase));
     lua_setfield(L, -2, "luacryptorbase");
+    lua_pushcfunction(L, lua_calc_sha256);
+    lua_setfield(L, -2, "sha256");
     return 1;
 }
 

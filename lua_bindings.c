@@ -131,3 +131,18 @@ static int twofish_decrypt(lua_State *L) {
     return twofish_twoways(L, 0);
 }
 
+static int lua_calc_sha256(lua_State *L) {
+    if (lua_gettop(L) != 1) {
+        return 0;
+    }
+    if (lua_type(L, 1) != LUA_TSTRING) {
+        return 0;
+    }
+    size_t size;
+    const char* text = lua_tolstring(L, 1, &size);
+    unsigned char sha256sum[32];
+    calc_sha256(sha256sum, text, size);
+    lua_pushlstring(L, sha256sum, 32);
+    return 1;
+}
+
