@@ -149,7 +149,7 @@ function m.encrypt_functions(mod, lines, password)
                 'You can use only one upvalue (module itself)')
             src = 'local ' .. upvname .. '\n' .. src
         end
-        local name_enc = lc.encrypt(name, password .. name)
+        local name_enc = lc.sha256(password .. name)
         local src_enc = lc.encrypt(src, password .. name)
         name2enc[name_enc] = src_enc
     end
@@ -176,15 +176,15 @@ function m.encrypted_selector(name2enc)
         printf("Failed to get final password\n");
         return 0;
     }
-    // get target encrypted name
-    lua_pushcfunction(L, twofish_encrypt);
-    lua_pushvalue(L, 1); // name
+    // get sha256(password .. name)
+    lua_pushcfunction(L, lua_calc_sha256);
     lua_pushvalue(L, 2); /* password .. name */
-    lua_call(L, 2, 1);
-    // 3 is encrypted name
-    size_t name_enc_size;
-    const char* name_enc = lua_tolstring(L, 3, &name_enc_size);
-    if (!name_enc) {
+    lua_call(L, 1, 1);
+    // 3 is sha256(password .. name)
+    size_t name_hash_size;
+    const char* name_hash =
+        lua_tolstring(L, 3, &name_hash_size);
+    if (!name_hash || name_hash_size != 32) {
         printf("Failed to get encrypted name\n");
         return 0;
     }
@@ -194,8 +194,7 @@ function m.encrypted_selector(name2enc)
         i = i + 1
         local tt = [[
         const char nn@i@[] = { @dump(name)@ };
-        if (name_enc_size == @#name@ &&
-            memcmp(name_enc, nn@i@, @#name@) == 0) {
+        if (memcmp(name_hash, nn@i@, 32) == 0) {
             const char cc[] = { @dump(src_enc)@ };
             lua_pushcfunction(L, twofish_decrypt);
             lua_pushlstring(L, cc, sizeof(cc));
@@ -206,7 +205,6 @@ function m.encrypted_selector(name2enc)
         t = t .. tt:gsub('@[%w_#()]+@', {
             ['@i@'] = i,
             ['@dump(name)@'] = m.dump(name),
-            ['@#name@'] = #name,
             ['@dump(src_enc)@'] = m.dump(src_enc),
         })
     end
