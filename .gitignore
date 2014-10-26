@@ -3,6 +3,7 @@
 *.pyc
 *.so
 *.exe
+*.out
 
 tables.h
 twofish_lib.c
