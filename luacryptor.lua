@@ -351,12 +351,12 @@ if not pcall(debug.getlocal, 4, 1) then
         print(f(a1, a2, a3, a4))
     else
         print([[Usage:
-        ./luacryptor.lua dump string
-        ./luacryptor.lua dumpFile file
-        ./luacryptor.lua embed target.lua password
-        ./luacryptor.lua encfunc target.lua password [bytecode]
-        ./luacryptor.lua buildso module.c [module.so]
-        ./luacryptor.lua buildexe app.c [app.exe]
+    ./luacryptor.lua dump string
+    ./luacryptor.lua dumpFile file
+    ./luacryptor.lua embed target.lua password
+    ./luacryptor.lua encfunc target.lua password [bytecode]
+    ./luacryptor.lua buildso module.c [module.so]
+    ./luacryptor.lua buildexe app.c [app.exe]
         ]])
     end
 end
